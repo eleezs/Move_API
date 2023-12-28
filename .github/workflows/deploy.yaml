@@ -38,7 +38,7 @@ jobs:
           --build-arg MONGO_USER=$MONGO_USER
           --build-arg MONGO_CLUSTER=$MONGO_CLUSTER
           --build-arg MONGO_PASSWORD=$MONGO_PASSWORD
-            -t gcr.io/ise-test-404109/movie-prod-api:latest .
+          -t gcr.io/ise-test-404109/movie-prod-api:latest .
       - run: 'docker push gcr.io/ise-test-404109/movie-prod-api:latest'
   gcloud-deploy:
     needs: docker-build
