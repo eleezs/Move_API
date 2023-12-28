@@ -1,0 +1,67 @@
+name: Movie/api
+on:
+  push:
+    branches:
+      - master
+      - develop
+  workflow_dispatch: null
+concurrency:
+  group: '${{ github.ref }}'
+  cancel-in-progress: true
+env:
+  MONGO_DATABASE: '${{ secrets.MONGO_DATABASE }}'
+  MONGO_USER: '${{ secrets.MONGO_USER }}'
+  MONGO_PASSWORD: '${{ secrets.MONGO_PASSWORD }}'
+  MONGO_CLUSTER: '${{ secrets.MONGO_CLUSTER }}'
+  GCP_PROJECT_ID: '${{ secrets.GCP_PROJECT_ID }}'
+  GCP_ZONE: '${{ secrets.GCP_ZONE }}'
+  GKE_CLUSTER: '${{ secrets.GKE_CLUSTER }}'
+  GKE_CREDENTIALS: '${{ secrets.GKE_CREDENTIALS }}'
+  SERVICE_ACCOUNT: '${{ secrets.SERVICE_ACCOUNT }}'
+jobs:
+  docker-build:
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/master'
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v3.5.0
+        with:
+          fetch-depth: 20
+          lfs: true
+      - run: >-
+          echo $SERVICE_ACCOUNT | base64 -d > service_account.json && cat
+          service_account.json | docker login -u _json_key --password-stdin
+          https://gcr.io
+      - run: >-
+          docker build
+          --build-arg MONGO_DATABASE=$MONGO_DATABASE
+          --build-arg MONGO_USER=$MONGO_USER
+          --build-arg MONGO_CLUSTER=$MONGO_CLUSTER
+          --build-arg MONGO_PASSWORD=$MONGO_PASSWORD
+            -t gcr.io/ise-test-404109/movie-prod-api:latest .
+      - run: 'docker push gcr.io/ise-test-404109/movie-prod-api:latest'
+  gcloud-deploy:
+    needs: docker-build
+    runs-on: ubuntu-latest
+    container:
+      image: google/cloud-sdk
+    if: github.ref == 'refs/heads/master'
+    timeout-minutes: 60
+    steps:
+      - run: apt update && apt install git
+      - run: apt update && apt install git-lfs
+      - uses: actions/checkout@v3.5.0
+        with:
+          fetch-depth: 20
+          lfs: true
+      - run: export USE_GKE_GCLOUD_AUTH_PLUGIN=True
+      - run: echo $SERVICE_ACCOUNT | base64 -d > encoded_serviceaccount.json
+      - run: >-
+          gcloud auth activate-service-account --key-file
+          encoded_serviceaccount.json
+      - run: gcloud config set project $GCP_PROJECT_ID
+      - run: gcloud config set compute/zone $GCP_ZONE
+      - run: gcloud config set container/cluster $GKE_CLUSTER
+      - run: gcloud container clusters get-credentials $GKE_CREDENTIALS
+      - run: kubectl apply -f app.yaml
+      - run: kubectl rollout restart deployment/movie-prod-api
