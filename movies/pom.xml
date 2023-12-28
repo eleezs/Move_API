@@ -66,6 +66,7 @@
 							<artifactId>lombok</artifactId>
 						</exclude>
 					</excludes>
+					<mainClass>dev.elizs.movies.MoviesApplication</mainClass>
 				</configuration>
 			</plugin>
 		</plugins>

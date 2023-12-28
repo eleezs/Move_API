@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: movie-prod-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: movie-prod-api
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: movie-prod-api
+    spec:
+      containers:
+      - image: gcr.io/ise-test-404109/movie-prod-api:latest
+        name: movie-prod-api
+        imagePullPolicy: Always
+        ports:
+          - containerPort: 8080
+        envFrom:
+          - secretRef:
+              name: movie-api-secret
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: movie-prod-api
+  name: movie-prod-api
+spec:
+  type: LoadBalancer
+  ports:
+  - port: 80
+    protocol: TCP
+    targetPort: 8080
+  selector:
+    app: movie-prod-api
