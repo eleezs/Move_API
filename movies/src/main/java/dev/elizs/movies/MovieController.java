@@ -22,7 +22,7 @@ public class MovieController {
   private MovieService movieService;
 
   @CrossOrigin(origins = "*")
-  @GetMapping
+  @GetMapping("")
   public ResponseEntity<List<Movie>> getAllMovies() {
     return new ResponseEntity<List<Movie>>(movieService.allMovies(), HttpStatus.OK);
   }
