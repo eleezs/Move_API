@@ -1,4 +1,4 @@
-package dev.elizs.movies;
+package dev.elizs.movies.controller;
 
 import java.util.Map;
 
@@ -11,6 +11,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import dev.elizs.movies.Review;
+import dev.elizs.movies.service.ReviewService;
+
 @RestController
 @RequestMapping("/api/v1/movies/review")
 public class ReviewController {
@@ -19,7 +22,7 @@ public class ReviewController {
   private ReviewService reviewService;
 
   @CrossOrigin(origins = "*")
-  @PostMapping
+  @PostMapping("")
   public ResponseEntity<Review> createReview(@RequestBody Map<String, String> payload) {
     return new ResponseEntity<Review>(reviewService.createReview(payload.get("reviewBody"), payload.get("imdbId")), HttpStatus.CREATED);
   }
