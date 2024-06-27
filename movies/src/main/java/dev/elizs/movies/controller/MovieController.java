@@ -1,4 +1,4 @@
-package dev.elizs.movies;
+package dev.elizs.movies.controller;
 
 import java.util.List;
 import java.util.Optional;
@@ -12,6 +12,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import dev.elizs.movies.Movie;
+import dev.elizs.movies.service.MovieService;
 
 @RestController
 @RequestMapping("/api/v1/movies")
@@ -33,7 +36,7 @@ public class MovieController {
     return new ResponseEntity<Optional<Movie>>(movieService.singleMovie(id), HttpStatus.OK);
   }
 
-   @CrossOrigin(origins = "*")
+  @CrossOrigin(origins = "*")
   @GetMapping("/imdb/{imdbId}")
   public ResponseEntity<Optional<Movie>> getSingleMovieByImdbId(@PathVariable String imdbId) {
     return new ResponseEntity<Optional<Movie>>(movieService.singleMovieByImdbId(imdbId), HttpStatus.OK);

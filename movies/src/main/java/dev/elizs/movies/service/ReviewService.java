@@ -1,10 +1,14 @@
-package dev.elizs.movies;
+package dev.elizs.movies.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
+
+import dev.elizs.movies.Movie;
+import dev.elizs.movies.Review;
+import dev.elizs.movies.respository.ReviewRepository;
 
 @Service
 public class ReviewService {
